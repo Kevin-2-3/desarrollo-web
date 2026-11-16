@@ -31,8 +31,8 @@ import jakarta.persistence.criteria.*;
             List<Predicate> filtros=new ArrayList<>();
             filtros.add(cb.isTrue(root.get("activo")));
             if(busqueda!=null&&!busqueda.isBlank()){
-                String b="%"+busqueda.toLowerCase(Locale.ROOT)+"%";
-                filtros.add(cb.or(cb.like(cb.lower(root.get("nombre")),b),cb.like(cb.lower(root.get("marca").get("nombre")),b)));
+                String b="%"+busqueda.trim().toLowerCase(Locale.ROOT).replace("!","!!").replace("%","!%").replace("_","!_")+"%";
+                filtros.add(cb.or(cb.like(cb.lower(root.get("nombre")),b,'!'),cb.like(cb.lower(root.get("marca").get("nombre")),b,'!')));
             }
             if(categoria!=null)filtros.add(cb.equal(root.get("tipoProducto"),categoria));
             var sub=q.subquery(Long.class);
