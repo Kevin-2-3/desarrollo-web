@@ -24,7 +24,9 @@ import java.math.BigDecimal;
         if(!s.activo||!s.producto.activo||s.stock<cantidad)throw ApiError.conflicto("SKU no disponible o existencia insuficiente");
     }
     @Transactional public Object agregar(Long id,Long skuId,int cantidad,boolean reemplazar){
+        if(cantidad<1)throw ApiError.invalido("Cantidad inválida");
         Cliente c=bloquear(id);
+        if(skuId==null||skuId<1)throw ApiError.invalido("SKU inválido");
         Sku s=skus.findById(skuId).orElseThrow(ApiError::noExiste);
         var key=new CarritoId(id,skuId);
         var previo=items.findById(key);
@@ -41,6 +43,7 @@ import java.math.BigDecimal;
     }
     @Transactional public void eliminar(Long id,Long skuId){
         bloquear(id);
+        if(skuId==null||skuId<1)throw ApiError.invalido("SKU inválido");
         items.deleteById(new CarritoId(id,skuId));
     }
     @Transactional public void vaciar(Long id){
@@ -57,6 +60,12 @@ import java.math.BigDecimal;
             Map<String,Object> l=new LinkedHashMap<>();
             l.put("skuId",s.id);
             l.put("nombre",s.producto.nombre);
+            l.put("productoId",s.producto.id);
+            l.put("codigoSku",s.codigoSku);
+            l.put("talla",s.talla);
+            l.put("color",s.color);
+            l.put("stock",s.stock);
+            l.put("disponible",s.activo&&s.producto.activo&&s.stock>=i.cantidad);
             l.put("cantidad",i.cantidad);
             l.put("precioUnitarioMxn",s.precioMxn);
             l.put("subtotalMxn",subtotal);
