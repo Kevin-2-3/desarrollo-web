@@ -117,6 +117,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
         }
         items.deleteByClienteId(cliente);
         em.flush();
+        // La BD guarda microsegundos: devolver la misma fecha en el primer envío y el reintento.
+        em.refresh(p);
         return resultado(intento);
     }
     private Object resultado(IntentoConfirmacion i){
