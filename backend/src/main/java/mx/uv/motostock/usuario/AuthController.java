@@ -18,6 +18,12 @@ import java.util.Map;
     @GetMapping("/csrf") public Map<String,String> csrf(HttpServletRequest r){
         return Map.of("token",Sesiones.csrf(r));
     }
+    @GetMapping("/sesion") public Map<String,Object> sesion(HttpServletRequest r){
+        var sesion=r.getSession(false);
+        if(sesion==null || sesion.getAttribute("clienteId")==null) return Map.of("autenticado",false);
+        return Map.of("autenticado",true, "id",sesion.getAttribute("clienteId"),
+                "nombre",java.util.Objects.toString(sesion.getAttribute("nombre"),"Cliente"));
+    }
     @PostMapping("/register") @ResponseStatus(HttpStatus.CREATED) public Map<String,Object> registro(@Valid @RequestBody Registro r){
         var c=servicio.registrar(r);
         return Map.of("id",c.id,"nombre",c.nombre,"correo",c.correo);
@@ -26,6 +32,7 @@ import java.util.Map;
         var c=servicio.login(l);
         r.changeSessionId();
         r.getSession().setAttribute("clienteId",c.id);
+        r.getSession().setAttribute("nombre",c.nombre);
         return Map.of("id",c.id,"nombre",c.nombre);
     }
     @PostMapping("/logout") @ResponseStatus(HttpStatus.NO_CONTENT) public void logout(HttpServletRequest r){

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1148bd">
+  <title>Iniciar sesión · Motostock</title>
+  <link rel="stylesheet" href="/css/tienda.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body data-vista='login'>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header><div class="barra">
+    <a href="catalogo.html" class="marca" aria-label="Motostock, ir al catálogo">MOTO<span>STOCK</span></a>
+    <nav aria-label="Navegación principal">
+      <a href="catalogo.html" data-nav="catalogo">Catálogo</a>
+      <a href="pedidos.html" data-nav="pedidos" hidden>Mis pedidos</a>
+      <a href="carrito.html" data-nav="carrito">Carrito</a>
+      <a href="login.html" data-nav="login">Iniciar sesión</a>
+      <button type="button" id="salir" hidden>Cerrar sesión</button>
+    </nav>
+  </div></header>
+  <div id="aviso" role="status" aria-live="polite"></div>
+  <main id="contenido" tabindex="-1"><section class="cuenta panel">
+      <h1>Iniciar sesión</h1>
+      <form method="post">
+        
+        <label class="campo">Correo electrónico<input name="correo" type="email" required maxlength="254" autocomplete="email"></label>
+        <label class="campo">Contraseña<input name="password" type="password" required maxlength="72" autocomplete="current-password"></label>
+        
+        <p class="error" role="alert"></p>
+        <button class="boton" disabled>Entrar</button>
+      </form>
+      <p>¿Primera visita? <a href="registro.html">Crea una cuenta</a></p>
+    </section></main>
+  <noscript>Activa JavaScript para consultar el catálogo de Motostock.</noscript>
+</body>
+</html>
