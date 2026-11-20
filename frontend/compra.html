@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1148bd">
+  <title>Datos de entrega · Motostock</title>
+  <link rel="stylesheet" href="/css/tienda.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body data-vista="compra">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header><div class="barra">
+    <a href="catalogo.html" class="marca" aria-label="Motostock, ir al catálogo">MOTO<span>STOCK</span></a>
+    <nav aria-label="Navegación principal">
+      <a href="catalogo.html" data-nav="catalogo">Catálogo</a>
+      <a href="pedidos.html" data-nav="pedidos" hidden>Mis pedidos</a>
+      <a href="carrito.html" data-nav="carrito">Carrito</a>
+      <a href="login.html" data-nav="login">Iniciar sesión</a>
+      <button type="button" id="salir" hidden>Cerrar sesión</button>
+    </nav>
+  </div></header>
+  <div id="aviso" role="status" aria-live="polite"></div>
+  <main id="contenido" tabindex="-1">
+    <p><a href="carrito.html">Volver al carrito</a></p>
+    <h1>Datos de entrega</h1>
+    <form class="panel" method="post" data-entrega hidden>
+      <label class="campo">Nombre de quien recibe<input name="nombreDestinatario" autocomplete="shipping name" required maxlength="150"></label>
+      <label class="campo">Teléfono<input type="tel" name="telefono" autocomplete="shipping tel" required minlength="7" maxlength="20"></label>
+      <label class="campo">Calle, número y colonia<input name="direccion" autocomplete="shipping street-address" required maxlength="500"></label>
+      <label class="campo">Localidad<input name="localidad" autocomplete="shipping address-level2" required maxlength="150"></label>
+      <label class="campo">Estado<input name="estadoEntrega" autocomplete="shipping address-level1" required maxlength="100"></label>
+      <label class="campo">Código postal<input name="codigoPostal" autocomplete="shipping postal-code" inputmode="numeric" pattern="[0-9]{5}" required maxlength="5" title="Cinco dígitos"></label>
+      <p role="status" data-mensaje></p>
+      <button class="boton" type="submit">Revisar compra</button>
+    </form>
+  </main>
+  <noscript>Activa JavaScript para consultar el catálogo de Motostock.</noscript>
+</body>
+</html>

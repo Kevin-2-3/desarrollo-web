@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1148bd">
+  <title>Revisar compra · Motostock</title>
+  <link rel="stylesheet" href="/css/tienda.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body data-vista="resumen">
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header><div class="barra">
+    <a href="catalogo.html" class="marca" aria-label="Motostock, ir al catálogo">MOTO<span>STOCK</span></a>
+    <nav aria-label="Navegación principal">
+      <a href="catalogo.html" data-nav="catalogo">Catálogo</a>
+      <a href="pedidos.html" data-nav="pedidos" hidden>Mis pedidos</a>
+      <a href="carrito.html" data-nav="carrito">Carrito</a>
+      <a href="login.html" data-nav="login">Iniciar sesión</a>
+      <button type="button" id="salir" hidden>Cerrar sesión</button>
+    </nav>
+  </div></header>
+  <div id="aviso" role="status" aria-live="polite"></div>
+  <main id="contenido" tabindex="-1">
+    <p><a href="carrito.html">Volver al carrito</a></p>
+    <h1>Revisar compra</h1>
+    <div data-resumen hidden>
+      <section class="panel"><h2>Artículos</h2>
+        <div class="tabla-scroll" role="region" tabindex="0" aria-label="Artículos de la compra">
+        <table aria-label="Artículos de la compra">
+          <thead><tr><th scope="col">Producto</th><th scope="col">Precio unitario</th><th scope="col">Cantidad</th><th scope="col">Subtotal</th></tr></thead>
+          <tbody data-filas></tbody>
+        </table>
+      </div>
+        <p class="total-compra"><strong>Total en MXN</strong> <strong data-total></strong></p>
+      </section>
+      <section class="panel"><h2>Entrega</h2>
+        <dl data-destino>
+        <dt>Nombre de quien recibe</dt><dd data-campo="nombreDestinatario"></dd>
+        <dt>Teléfono</dt><dd data-campo="telefono"></dd>
+        <dt>Calle, número y colonia</dt><dd data-campo="direccion"></dd>
+        <dt>Localidad</dt><dd data-campo="localidad"></dd>
+        <dt>Estado</dt><dd data-campo="estadoEntrega"></dd>
+        <dt>Código postal</dt><dd data-campo="codigoPostal"></dd>
+      </dl>
+        <a class="secundario" href="compra.html" data-editar>Editar datos</a>
+      </section>
+      <form class="panel" data-confirmar method="post">
+        <h2>Pago simulado</h2>
+        <label class="campo">Resultado del pago<select name="resultado">
+          <option value="aprobado">Aprobado</option>
+          <option value="rechazado">Rechazado</option>
+        </select></label>
+        <p role="status" data-mensaje></p>
+        <button class="boton" type="submit">Confirmar compra</button>
+      </form>
+    </div>
+  </main>
+  <noscript>Activa JavaScript para consultar el catálogo de Motostock.</noscript>
+</body>
+</html>
