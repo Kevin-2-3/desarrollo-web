@@ -4,23 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Motostock</title>
-  <link rel="stylesheet" href="/css/tienda.css">
+  <script>
+    // Conserva los enlaces guardados antes de separar las páginas.
+    const [ruta, filtros] = location.hash.slice(1).split('?');
+    const [pagina, id] = ruta.split('/');
+    const paginas = ['catalogo', 'login', 'registro', 'producto', 'carrito', 'compra', 'pedidos', 'pedido'];
+    const destino = new URL((paginas.includes(pagina) ? pagina : 'catalogo') + '.html', location.href);
+    destino.search = filtros || location.search;
+    if (id && (pagina === 'pedido' || pagina === 'producto')) destino.searchParams.set('id', id);
+    location.replace(destino);
+  </script>
 </head>
-<body>
-  <header>
-    <div class="barra">
-      <a class="marca" href="/">MOTO<span>STOCK</span></a>
-    </div>
-  </header>
-  <main>
-    <section class="panel">
-      <h1>Motostock</h1>
-      <p>Tienda de motocicletas, accesorios y refacciones.</p>
-      <div class="acciones">
-        <a class="boton" href="login.html">Iniciar sesión</a>
-        <a class="secundario" href="registro.html">Crear cuenta</a>
-      </div>
-    </section>
-  </main>
-</body>
+<body><a href="catalogo.html">Abrir el catálogo de Motostock</a></body>
 </html>

@@ -1,3 +1,4 @@
+import { catalogo } from './catalogo.js';
 
 const main = document.querySelector('main');
 const salida = document.querySelector('#salir');
@@ -27,7 +28,7 @@ function ir(destino, mensaje) {
 function destinoTrasLogin() {
   const ruta = parametros.get('volver') || '';
   return /^\/(catalogo|producto|carrito|compra|resumen|pedidos|pedido)\.html(?:\?[^#]*)?$/.test(ruta)
-    ? ruta : '/login.html';
+    ? ruta : '/catalogo.html';
 }
 
 function pedirLogin(mensaje = 'Inicia sesión para continuar.') {
@@ -119,17 +120,29 @@ async function iniciar() {
   const sesion = await api('/auth/sesion');
   cliente = sesion.autenticado ? sesion : null;
   navegacion(vista);
-  if (!cliente && privadas.includes(vista)) return pedirLogin();
-  document.querySelector('[data-nav="catalogo"]').hidden = true;
   document.querySelector('[data-nav="carrito"]').hidden = true;
-  document.querySelector('.marca').href = 'login.html';
+  if (!cliente && privadas.includes(vista)) return pedirLogin();
   if (vista === 'login' || vista === 'registro') {
-    if (cliente) {
-      main.innerHTML = '<section class="panel"><h1>Sesión iniciada</h1></section>';
-    } else cuenta();
+    if (cliente) ir(destinoTrasLogin());
+    else cuenta();
     return;
   }
-
+  const ctx = {
+    main, esc, dinero: valor => moneda.format(valor), activo: () => !saliendo,
+    aviso, ir, login: pedirLogin, usuario: () => cliente,
+    api: async (path, opciones) => {
+      try { return await api(path, opciones); }
+      catch (error) {
+        if (error.status === 401 && !saliendo) {
+          limpiarCompra();
+          pedirLogin('Tu sesión terminó. Inicia sesión para continuar.');
+        }
+        throw error;
+      }
+    }
+  };
+  const id = parametros.get('id');
+  await catalogo(vista, id, ctx);
 }
 
 salida.onclick = async () => {
@@ -143,7 +156,7 @@ salida.onclick = async () => {
     }
   }
   limpiarCompra();
-  ir('login.html', 'Sesión cerrada.');
+  ir('catalogo.html', 'Sesión cerrada.');
 };
 
 const mensaje = sessionStorage.getItem('motostock.aviso');
