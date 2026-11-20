@@ -1,4 +1,5 @@
 import { catalogo } from './catalogo.js';
+import { compras } from './compras.js';
 
 const main = document.querySelector('main');
 const salida = document.querySelector('#salir');
@@ -120,7 +121,6 @@ async function iniciar() {
   const sesion = await api('/auth/sesion');
   cliente = sesion.autenticado ? sesion : null;
   navegacion(vista);
-  document.querySelector('[data-nav="carrito"]').hidden = true;
   if (!cliente && privadas.includes(vista)) return pedirLogin();
   if (vista === 'login' || vista === 'registro') {
     if (cliente) ir(destinoTrasLogin());
@@ -142,7 +142,8 @@ async function iniciar() {
     }
   };
   const id = parametros.get('id');
-  await catalogo(vista, id, ctx);
+  if (privadas.includes(vista)) await compras(vista, id, ctx);
+  else await catalogo(vista, id, ctx);
 }
 
 salida.onclick = async () => {
