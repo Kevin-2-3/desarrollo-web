@@ -49,7 +49,7 @@ function tarjeta(producto, filtros, dinero) {
     const enlace = nodo.querySelector("[data-detalle]");
     const consulta = new URLSearchParams({ id: producto.id });
     for (const [clave, valor] of filtros) consulta.set(clave, valor);
-    enlace.hidden = true;
+    enlace.href = "producto.html?" + consulta;
     enlace.setAttribute("aria-label", "Ver detalle de " + producto.nombre);
     return nodo;
 }
@@ -108,7 +108,101 @@ async function listar(filtros, ctx) {
     } finally { lista.removeAttribute("aria-busy"); }
 }
 
+function fichaTecnica(ficha) {
+    const campos = [
+        ["anio", "Año de referencia"], ["cilindradaCc", "Cilindrada", " cc"], ["motor", "Motor"],
+        ["frenos", "Frenos"], ["tanqueLitros", "Tanque", " L"],
+        ["tipoUso", "Uso"], ["compatibilidad", "Compatibilidad"]
+    ];
+    const lista = document.querySelector(".ficha-tecnica");
+    for (const [clave, titulo, unidad = ""] of campos) {
+        if (ficha?.[clave] == null) continue;
+        const fila = document.createElement("div");
+        const etiqueta = document.createElement("dt");
+        const valor = document.createElement("dd");
+        etiqueta.textContent = titulo;
+        valor.textContent = ficha[clave] + unidad;
+        fila.append(etiqueta, valor);
+        lista.append(fila);
+    }
+    document.querySelector("#especificaciones").hidden = !lista.childElementCount;
+}
+
+function galeria(producto) {
+    const principal = document.querySelector(".foto-detalle");
+    cargarImagen(principal, producto.imagenes[0], producto.nombre);
+    if (producto.imagenes.length < 2) return;
+    const miniaturas = document.querySelector(".miniaturas");
+    miniaturas.hidden = false;
+    producto.imagenes.forEach((url, indice) => {
+        const boton = document.createElement("button");
+        boton.type = "button";
+        boton.setAttribute("aria-label", "Ver foto " + (indice + 1));
+        boton.setAttribute("aria-pressed", String(indice === 0));
+        const imagen = document.createElement("img");
+        cargarImagen(imagen, url, "");
+        boton.append(imagen);
+        miniaturas.append(boton);
+        boton.onclick = () => {
+            cargarImagen(principal, url, producto.nombre);
+            for (const otra of miniaturas.children) otra.setAttribute("aria-pressed", String(otra === boton));
+        };
+    });
+}
+
+function activarCompra(producto, filtros, ctx) {
+    const form = document.querySelector(".compra-variante");
+    const { skuId, cantidad } = form.elements;
+    const boton = form.querySelector("button");
+    const candidatas = variantesEnRango(producto, filtros);
+    const inicial = candidatas.find(v => v.stock > 0) || candidatas[0] || producto.variantes[0];
+    for (const v of producto.variantes) {
+        const nombre = [v.talla && "Talla " + v.talla, v.color].filter(Boolean).join(" · ") || v.codigoSku;
+        skuId.add(new Option(nombre + (v.stock ? "" : " · Agotado"), v.id, false, v === inicial));
+    }
+    const seleccion = () => producto.variantes.find(v => String(v.id) === skuId.value);
+    function actualizarVariante() {
+        const v = seleccion();
+        const disponible = v && v.stock > 0;
+        form.querySelector(".precio").textContent = v ? ctx.dinero(v.precioMxn) : "Sin precio disponible";
+        const stock = form.querySelector("[data-stock]");
+        stock.textContent = disponible ? v.stock + (v.stock === 1 ? " unidad disponible" : " unidades disponibles") : "Agotado";
+        stock.className = disponible ? "disponible" : "agotado";
+        cantidad.max = v?.stock || 0;
+        cantidad.value = 1;
+        cantidad.disabled = boton.disabled = !disponible;
+    }
+    cantidad.closest("label").hidden = true;
+    boton.hidden = true;
+    actualizarVariante();
+    skuId.onchange = actualizarVariante;
+}
+
+async function detalle(id, filtros, ctx) {
+    document.querySelector("#volver").href = rutaCatalogo(filtros);
+    const estado = document.querySelector("#estado-producto");
+    try {
+        if (!/^[1-9]\d*$/.test(id)) throw new Error("El producto solicitado no está disponible.");
+        const producto = await ctx.api("/productos/" + encodeURIComponent(id));
+        if (!ctx.activo()) return;
+        const article = document.querySelector(".producto-detalle");
+        document.title = producto.nombre + " · Motostock";
+        article.querySelector("h1").textContent = producto.nombre;
+        article.querySelector(".categoria").textContent = producto.marca + " · " + categorias[producto.categoria];
+        article.querySelector("#descripcion").textContent = producto.descripcion || "";
+        fichaTecnica(producto.ficha);
+        galeria(producto);
+        activarCompra(producto, filtros, ctx);
+        estado.hidden = true;
+        article.hidden = false;
+    } catch (error) {
+        estado.textContent = error.message;
+    }
+}
+
 export async function catalogo(vista, id, ctx) {
     const consulta = new URLSearchParams(location.search);
-    await listar(parametros(consulta, Number(consulta.get("page"))), ctx);
+    const filtros = parametros(consulta, Number(consulta.get("page")));
+    if (vista === "producto") await detalle(id, filtros, ctx);
+    else await listar(filtros, ctx);
 }
