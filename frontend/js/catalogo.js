@@ -154,12 +154,14 @@ function activarCompra(producto, filtros, ctx) {
     const form = document.querySelector(".compra-variante");
     const { skuId, cantidad } = form.elements;
     const boton = form.querySelector("button");
+    const mensaje = form.querySelector("[role=status]");
     const candidatas = variantesEnRango(producto, filtros);
     const inicial = candidatas.find(v => v.stock > 0) || candidatas[0] || producto.variantes[0];
     for (const v of producto.variantes) {
         const nombre = [v.talla && "Talla " + v.talla, v.color].filter(Boolean).join(" · ") || v.codigoSku;
         skuId.add(new Option(nombre + (v.stock ? "" : " · Agotado"), v.id, false, v === inicial));
     }
+    boton.textContent = ctx.usuario() ? "Agregar al carrito" : "Iniciar sesión para agregar";
     const seleccion = () => producto.variantes.find(v => String(v.id) === skuId.value);
     function actualizarVariante() {
         const v = seleccion();
@@ -171,11 +173,26 @@ function activarCompra(producto, filtros, ctx) {
         cantidad.max = v?.stock || 0;
         cantidad.value = 1;
         cantidad.disabled = boton.disabled = !disponible;
+        mensaje.textContent = "";
     }
-    cantidad.closest("label").hidden = true;
-    boton.hidden = true;
     actualizarVariante();
     skuId.onchange = actualizarVariante;
+    form.onsubmit = async evento => {
+        evento.preventDefault();
+        if (boton.disabled || !form.reportValidity()) return;
+        if (!ctx.usuario()) return ctx.login();
+        const body = { skuId: seleccion().id, cantidad: cantidad.valueAsNumber };
+        boton.disabled = skuId.disabled = cantidad.disabled = true;
+        try {
+            await ctx.api("/carrito/items", { method: "POST", body });
+            if (ctx.activo()) ctx.ir("carrito.html", "Producto agregado al carrito.");
+        } catch (error) {
+            if (ctx.activo()) {
+                mensaje.textContent = error.message;
+                boton.disabled = skuId.disabled = cantidad.disabled = false;
+            }
+        }
+    };
 }
 
 async function detalle(id, filtros, ctx) {

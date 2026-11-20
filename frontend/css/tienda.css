@@ -102,7 +102,7 @@ tbody th { overflow-wrap: anywhere; }
 .total-compra { display: flex; justify-content: flex-end; gap: 1.5rem; margin: 1.1rem 0; }
 .vacio { padding: 2rem; text-align: center; }
 [role=status]:empty, [role=alert]:empty { display: none; }
-[data-mensaje]:not(:empty) { margin: .8rem 0; padding: .65rem; background: #f1f4f9; }
+[data-mensaje]:not(:empty), .compra-variante [role=status]:not(:empty) { margin: .8rem 0; padding: .65rem; background: #f1f4f9; }
 @media(max-width: 920px) {
   .productos-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .catalogo-layout { grid-template-columns: 190px minmax(0,1fr); gap: .9rem; }
