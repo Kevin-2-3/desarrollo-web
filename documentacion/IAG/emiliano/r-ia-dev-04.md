@@ -59,7 +59,7 @@ git diff --numstat 34a4b2e 59edcd0
 
 **Resumen tras el rechazo del pago simulado**
 
-![Resumen tras el rechazo del pago simulado](<documentacion/IAG/emiliano/capturas/Resumen de compra con pago rechazado.jpg>)
+![Resumen tras el rechazo del pago simulado](<capturas/Resumen de compra con pago rechazado.jpg>)
 
 ---
 
