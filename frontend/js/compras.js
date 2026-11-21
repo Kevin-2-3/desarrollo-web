@@ -1,3 +1,9 @@
+const fechas = new Intl.DateTimeFormat('es-MX', { dateStyle: 'long', timeStyle: 'short' });
+
+function estado(valor) {
+  return valor === 'CONFIRMADO' ? 'Confirmado' : valor;
+}
+
 function filaArticulo(item, ctx, editable) {
   const { esc, dinero } = ctx;
   const sku = esc(item.skuId);
@@ -193,7 +199,7 @@ async function revision(ctx, clave) {
       if (!ctx.activo()) return;
       if (respuesta.resultado === 'APROBADO') {
         sessionStorage.removeItem(clave);
-        ctx.ir('carrito.html', 'Compra confirmada. Folio ' + respuesta.pedido.folio);
+        ctx.ir('pedido.html?id=' + encodeURIComponent(respuesta.pedido.id), 'Compra confirmada. Folio ' + respuesta.pedido.folio);
         return;
       }
       delete compra.intento;
@@ -207,10 +213,32 @@ async function revision(ctx, clave) {
         ctx.ir('resumen.html', 'La compra cambió. Revisa los datos antes de confirmar de nuevo.');
         return;
       }
-      mensaje(ctx, error.message + ' Puedes reintentar la misma confirmación.');
+      mensaje(ctx, error.message + ' Puedes consultar tus pedidos o reintentar la misma confirmación.');
     }
     controles();
   };
+}
+
+async function historial(ctx) {
+  const pedidos = await ctx.api('/pedidos');
+  if (!ctx.activo()) return;
+  ctx.main.querySelector('[data-vacio]').hidden = pedidos.length > 0;
+  ctx.main.querySelector('[data-historial]').hidden = pedidos.length === 0;
+  ctx.main.querySelector('[data-filas]').innerHTML = pedidos.map(p =>
+    `<tr><th scope="row"><a href="pedido.html?id=${encodeURIComponent(p.id)}">${ctx.esc(p.folio)}</a></th>
+      <td>${fechas.format(new Date(p.fecha))}</td><td>${ctx.esc(estado(p.estado))}</td><td>${ctx.dinero(p.totalMxn)}</td></tr>`
+  ).join('');
+}
+
+async function detalle(id, ctx) {
+  if (!/^\d+$/.test(id)) throw new Error('Selecciona un pedido desde Mis pedidos.');
+  const pedido = await ctx.api('/pedidos/' + encodeURIComponent(id));
+  if (!ctx.activo()) return;
+  ctx.main.querySelector('[data-folio]').textContent = pedido.folio;
+  ctx.main.querySelector('[data-fecha]').textContent = fechas.format(new Date(pedido.fecha)) + ' · ' + estado(pedido.estado);
+  articulos(pedido, ctx);
+  destino(pedido.entrega, ctx.main);
+  ctx.main.querySelector('[data-pedido]').hidden = false;
 }
 
 export async function compras(vista, id, ctx) {
@@ -219,5 +247,7 @@ export async function compras(vista, id, ctx) {
     case 'carrito': return carrito(ctx);
     case 'compra': return entrega(ctx, clave);
     case 'resumen': return revision(ctx, clave);
+    case 'pedidos': return historial(ctx);
+    case 'pedido': return detalle(id, ctx);
   }
 }

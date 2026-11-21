@@ -75,7 +75,7 @@ function navegacion(vista) {
     if (enlace.dataset.nav === grupo) enlace.setAttribute('aria-current','page');
     else enlace.removeAttribute('aria-current');
   });
-  document.querySelector('[data-nav="pedidos"]').hidden = true;
+  document.querySelector('[data-nav="pedidos"]').hidden = !cliente;
   document.querySelector('[data-nav="login"]').hidden = Boolean(cliente);
   salida.hidden = !cliente;
 }

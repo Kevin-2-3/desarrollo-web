@@ -93,6 +93,7 @@ dt { font-weight: 600; } dd { margin: 0 0 .45rem; }
 .cuenta > p { margin: 1rem 0 0; }
 .cuenta small { display: block; margin: -.55rem 0 .9rem; }
 [data-entrega] { max-width: 38rem; }
+.panel h2 { overflow-wrap: anywhere; }
 .tabla-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: .7rem; border-bottom: 1px solid var(--borde); vertical-align: middle; }
