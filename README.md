@@ -15,7 +15,7 @@ El proyecto utiliza un backend Spring Boot con una API HTTP de diseño REST, res
 | Base de datos | PostgreSQL |
 | Contraseñas | BCrypt mediante spring-security-crypto |
 | Validaciones | Jakarta Bean Validation |
-| Frontend previsto | HTML, CSS y JavaScript |
+| Frontend | HTML, CSS y JavaScript |
 | Pruebas manuales | CURL, jq y psql |
 
 ## Estructura del repositorio
@@ -24,39 +24,55 @@ El proyecto utiliza un backend Spring Boot con una API HTTP de diseño REST, res
 desarrollo-web/
 ├── backend/
 │   ├── pom.xml
-│   └── src/
-│       ├── main/
-│       │   ├── java/mx/uv/motostock/
-│       │   │   ├── MotostockApplication.java
-│       │   │   ├── modelo/
-│       │   │   ├── repositorio/
-│       │   │   ├── comun/
-│       │   │   ├── seguridad/
-│       │   │   ├── usuario/
-│       │   │   ├── catalogo/
-│       │   │   ├── carrito/
-│       │   │   └── pedido/
-│       │   └── resources/
-│       │       ├── application.properties
-│       │       ├── static/sin-imagen.svg
-│       │       └── templates/
-│       └── test/java/mx/uv/motostock/
-├── frontend/
-│   ├── index.html
-│   ├── css/
-│   └── js/
+│   └── src/main/
+│       ├── java/mx/uv/motostock/
+│       │   ├── carrito/
+│       │   ├── catalogo/
+│       │   ├── comun/
+│       │   ├── modelo/
+│       │   ├── pedido/
+│       │   ├── repositorio/
+│       │   ├── seguridad/
+│       │   ├── usuario/
+│       │   └── MotostockApplication.java
+│       └── resources/
+│           ├── application.properties
+│           └── static/sin-imagen.svg
 ├── database/
 │   ├── preparar.sql
 │   ├── esquema.sql
-│   └── datos-prueba.sql
+│   └── catalogo.sql
 ├── documentacion/
 │   ├── Analisis  y diseño/
-│   ├── Entrega 2/
 │   ├── IAG/
 │   └── Reportes/
+├── frontend/
+│   ├── css/
+│   ├── img/productos/
+│   ├── js/
+│   ├── carrito.html
+│   ├── catalogo.html
+│   ├── compra.html
+│   ├── index.html
+│   ├── login.html
+│   ├── pedido.html
+│   ├── pedidos.html
+│   ├── producto.html
+│   ├── registro.html
+│   └── resumen.html
+├── pruebas/
+│   ├── entrega2/
+│   ├── entrega3/
+│   └── entrega5/
 ├── .gitignore
 └── README.md
 ```
+
+- [Backend](backend/) contiene la API REST. Los módulos de usuario, catálogo, carrito y pedido reúnen sus controladores y servicios. Los paquetes de modelo y repositorio manejan la persistencia en PostgreSQL.
+- [Base de datos](database/) contiene los SQL para preparar el usuario y la base, crear el esquema y cargar el catálogo inicial.
+- [Frontend](frontend/) contiene las páginas, los estilos, el JavaScript y las imágenes. Spring Boot sirve esos recursos en el mismo puerto que la API.
+- [Documentación](documentacion/) reúne el análisis y diseño, los reportes de uso de IA generativa y los reportes de avance.
+- [Pruebas](pruebas/) contiene las guías de CURL de las entregas 2 y 3 y la comprobación de la interfaz con capturas de la entrega 5.
 
 - **modelo:** entidades que representan las tablas y sus relaciones.
 - **repositorio:** acceso a PostgreSQL mediante Spring Data JPA.
@@ -67,7 +83,7 @@ desarrollo-web/
 - **database:** preparación del usuario/base, creación de tablas y ejemplos, en ese orden.
 - **documentacion:** requisitos, diseño, responsabilidades, guías y evidencias del equipo.
 
-El frontend y los documentos de contexto se conservan del repositorio original. Las solicitudes siguen el recorrido controlador → servicio → repositorio → PostgreSQL.
+Las solicitudes siguen el recorrido controlador → servicio → repositorio → PostgreSQL.
 
 ## Instalación y primera ejecución en WSL
 
@@ -94,10 +110,10 @@ mkdir -p ~/proyectos
 cd ~/proyectos
 git clone https://github.com/Kevin-2-3/desarrollo-web.git
 cd desarrollo-web
-ls backend/pom.xml database/preparar.sql database/esquema.sql database/datos-prueba.sql
+ls backend/pom.xml database/preparar.sql database/esquema.sql database/catalogo.sql
 ```
 
-La rama clonada debe contener los archivos del backend y la base de datos de la entrega 2. Si faltan, obtener la rama correspondiente o integrar primero los paquetes de la entrega; no continuar con una copia incompleta. Si el repositorio ya existe en la computadora, entrar a su raíz en lugar de clonarlo nuevamente.
+Para reproducir una entrega, usa la etiqueta indicada en su release de GitHub antes de instalar. Si ya tienes el repositorio, entra a su raíz.
 
 ### 4. Iniciar PostgreSQL y preparar la base
 
@@ -112,16 +128,16 @@ La redirección < permite leer el archivo con los permisos del usuario de WSL an
 
 Ejecutar preparar.sql solo una vez en un entorno donde todavía no existen ese usuario y esa base. Si ya existen, conservarlos y utilizar su configuración. Si el proceso quedó incompleto, revisar qué se creó antes de repetirlo. No usar --single-transaction, porque CREATE DATABASE debe ejecutarse fuera de una transacción.
 
-### 5. Crear las tablas y cargar ejemplos
+### 5. Crear las tablas y cargar catalogo
 
 Desde la raíz del proyecto, ejecutar cada comando e introducir la contraseña de motostock_app:
 
 ```bash
 psql -h localhost -U motostock_app -d motostock -W -v ON_ERROR_STOP=1 -f database/esquema.sql
-psql -h localhost -U motostock_app -d motostock -W -v ON_ERROR_STOP=1 -f database/datos-prueba.sql
+psql -h localhost -U motostock_app -d motostock -W -v ON_ERROR_STOP=1 -f database/catalogo.sql
 ```
 
-Estos archivos se cargan una sola vez en una base vacía. Si un paso falla, revisar el error antes de continuar. Los ejemplos incluyen tres productos de diferentes categorías y cuatro SKU. Las cuentas de clientes se crean mediante la API.
+Estos archivos se cargan una sola vez en una base vacía. Si un paso falla, revisar el error antes de continuar. La carga inicial incluye 53 productos. Las cuentas de clientes se crean mediante la API.
 
 ### 6. Configurar la conexión
 
@@ -156,7 +172,7 @@ Continuar únicamente si Maven indica BUILD SUCCESS:
 mvn spring-boot:run
 ```
 
-La primera compilación descarga dependencias. Mantener esta terminal abierta mientras se prueba la aplicación. La URL base de la API es http://localhost:8080/api/v1. Para detener el backend, presionar Ctrl+C.
+La primera compilación descarga dependencias. Mantener esta terminal abierta mientras se prueba la aplicación. Abre http://localhost:8080/ en el navegador para usar la tienda. La URL base de la API es http://localhost:8080/api/v1. Para detener el backend, presionar Ctrl+C.
 
 ## Comprobación inicial con CURL
 
@@ -195,6 +211,8 @@ curl -i -b .cookies/cliente.txt "$API/carrito"
 ```
 
 Esperados: login 200 y carrito 200. No enviar contraseña, cookie ni token CSRF como evidencia pública.
+
+Los casos y el registro de comprobación de la versión candidata se encuentran en [Comprobación desde la interfaz](pruebas/entrega5/Comprobacion%20desde%20GUI.md).
 
 ## Endpoints
 
